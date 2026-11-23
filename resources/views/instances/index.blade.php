@@ -21,12 +21,12 @@
             </div>
             <form class="search-wrap" method="get" action="{{ route('instances.index') }}">
                 <button class="search-icon search-submit" type="submit" aria-label="Rechercher"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.8" cy="8.8" r="5.8" stroke="currentColor" stroke-width="1.7"/><path d="m13.2 13.2 4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
-                <input class="search-input" id="instance-search" name="search" type="search" value="{{ request('search') }}" placeholder="Rechercher une instance, un client..." autocomplete="off" aria-label="Rechercher dans les instances">
+                <input class="search-input" id="instance-search" name="search" type="search" value="{{ request('search') }}" placeholder="Rechercher une description, un client..." autocomplete="off" aria-label="Rechercher dans les instances">
             </form>
         </div>
         <div class="table-scroll">
             <table class="instances-table">
-                <thead><tr><th>Date</th><th>Instance</th><th>Client</th><th>Ligne</th><th>Responsable</th><th>État</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Date</th><th>Description</th><th>Client</th><th>Ligne</th><th>Responsable</th><th>État</th><th>Actions</th></tr></thead>
                 <tbody>
                     @forelse ($instances as $instance)
                         <tr data-instance-row data-search="{{ mb_strtolower(implode(' ', array_filter([$instance->date, $instance->instance, $instance->client, $instance->ligne, $instance->responsable, $instance->etat, $instance->delai, $instance->date_cloture, $instance->observation])), 'UTF-8') }}">
@@ -56,7 +56,7 @@
             @csrf
             <div class="form-grid">
                 <div class="form-field"><label for="instance-date">Date *</label><input id="instance-date" name="date" type="date" value="{{ old('date', now()->toDateString()) }}" required autofocus>@error('date')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="instance-name">Instance *</label><input id="instance-name" name="instance" value="{{ old('instance') }}" required>@error('instance')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="instance-name">Description *</label><input id="instance-name" name="instance" value="{{ old('instance') }}" required>@error('instance')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="instance-client">Client *</label><input id="instance-client" name="client" value="{{ old('client') }}" required>@error('client')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="instance-line">Ligne</label><input id="instance-line" name="ligne" value="{{ old('ligne') }}"></div>
                 <div class="form-field"><label for="instance-owner">Responsable *</label>@include('partials.responsable-select', ['id' => 'instance-owner', 'value' => old('responsable'), 'required' => true])@error('responsable')<div class="field-error">{{ $message }}</div>@enderror</div>
@@ -76,7 +76,7 @@
             @method('PUT')
             <div class="form-grid">
                 <div class="form-field"><label for="edit-instance-date">Date *</label><input id="edit-instance-date" name="date" type="date" required>@error('date', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="edit-instance-name">Instance *</label><input id="edit-instance-name" name="instance" required>@error('instance', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="edit-instance-name">Description *</label><input id="edit-instance-name" name="instance" required>@error('instance', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-instance-client">Client *</label><input id="edit-instance-client" name="client" required>@error('client', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-instance-line">Ligne</label><input id="edit-instance-line" name="ligne"></div>
                 <div class="form-field"><label for="edit-instance-owner">Responsable *</label>@include('partials.responsable-select', ['id' => 'edit-instance-owner', 'required' => true])@error('responsable', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>

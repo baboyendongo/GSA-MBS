@@ -150,6 +150,29 @@ class RecordManagementTest extends TestCase
         $this->assertDatabaseMissing('instances', ['id' => $instance->id]);
     }
 
+    public function test_instance_description_is_shown_in_the_create_form_and_list(): void
+    {
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        $this->post(route('instances.store'), [
+            'date' => '2026-11-23',
+            'instance' => 'Déploiement réseau',
+            'client' => 'Client test',
+            'responsable' => 'MBS Tech',
+        ])->assertRedirect(route('instances.index'));
+
+        $this->assertDatabaseHas('instances', [
+            'instance' => 'Déploiement réseau',
+            'client' => 'Client test',
+        ]);
+
+        $this->get(route('instances.index'))
+            ->assertOk()
+            ->assertSee('<th>Description</th>', false)
+            ->assertSee('Description *')
+            ->assertSee('Déploiement réseau');
+    }
+
     public function test_project_b2b_can_be_edited_and_deleted(): void
     {
         $this->actingAs(User::factory()->create(['is_admin' => true]));

@@ -15,7 +15,7 @@
             @method('PUT')
             <div class="form-grid">
                 <div class="form-field"><label for="edit-instance-date">Date *</label><input id="edit-instance-date" name="date" type="date" value="{{ old('date', $instance->date) }}" required>@error('date')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="edit-instance-name">Instance *</label><input id="edit-instance-name" name="instance" value="{{ old('instance', $instance->instance) }}" required>@error('instance')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="edit-instance-name">Description *</label><input id="edit-instance-name" name="instance" value="{{ old('instance', $instance->instance) }}" required>@error('instance')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-instance-client">Client *</label><input id="edit-instance-client" name="client" value="{{ old('client', $instance->client) }}" required>@error('client')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-instance-line">Ligne</label><input id="edit-instance-line" name="ligne" value="{{ old('ligne', $instance->ligne) }}"></div>
                 <div class="form-field"><label for="edit-instance-owner">Responsable *</label>@include('partials.responsable-select', ['id' => 'edit-instance-owner', 'value' => old('responsable', $instance->responsable), 'required' => true])@error('responsable')<div class="field-error">{{ $message }}</div>@enderror</div>
