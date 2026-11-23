@@ -55,6 +55,39 @@
         @endif
     </section>
 
+        <section class="table-panel admin-responsables-panel" aria-labelledby="admin-responsables-title">
+            <div class="table-toolbar">
+                <div><h2 class="table-title" id="admin-responsables-title">Responsables</h2><p class="table-count">{{ $responsables->total() }} responsable(s) paramétré(s).</p></div>
+                <button class="primary-button" id="open-admin-create-responsable" type="button"><span aria-hidden="true">+</span> Ajouter un responsable</button>
+            </div>
+            <div class="table-scroll">
+                <table class="instances-table">
+                    <thead><tr><th>Nom</th><th>Disponibilité</th><th>Utilisation</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        @forelse ($responsables as $responsable)
+                            <tr>
+                                <td class="client-cell">{{ $responsable->name }}</td>
+                                <td><span class="admin-role {{ $responsable->is_active ? 'is-admin' : '' }}">{{ $responsable->is_active ? 'Actif' : 'Désactivé' }}</span></td>
+                                <td>{{ $responsableUsage[$responsable->id] }} fiche(s)</td>
+                                <td><div class="row-actions">
+                                    <button class="table-action-link" type="button" data-admin-responsable-edit data-record-id="{{ $responsable->id }}" data-update-url="{{ route('admin.responsables.update', $responsable) }}" data-responsable-name="{{ $responsable->name }}" title="Renommer" aria-label="Renommer le responsable {{ $responsable->name }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>
+                                    <form method="post" action="{{ route('admin.responsables.toggle', $responsable) }}">@csrf @method('PATCH')<button class="state-toggle-button" type="submit" title="{{ $responsable->is_active ? 'Désactiver' : 'Activer' }}" aria-label="{{ $responsable->is_active ? 'Désactiver' : 'Activer' }} le responsable {{ $responsable->name }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2v10"/><path d="M7 4.8a9 9 0 1 0 10 0"/></svg></button></form>
+                                    @if ($responsableUsage[$responsable->id] === 0)
+                                        <button class="danger-button" type="button" data-admin-responsable-delete data-record-name="{{ $responsable->name }}" data-delete-url="{{ route('admin.responsables.destroy', $responsable) }}" title="Supprimer" aria-label="Supprimer le responsable {{ $responsable->name }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg></button>
+                                    @endif
+                                </div></td>
+                            </tr>
+                        @empty
+                            <tr><td class="empty-state" colspan="4">Aucun responsable configuré.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if ($responsables->hasPages())
+                <div class="pagination-wrap">{{ $responsables->links() }}</div>
+            @endif
+        </section>
+
     <nav class="admin-links" aria-label="Gestion des suivis">
         <a class="secondary-button" href="{{ route('instancels.index') }}">Instancels</a>
         <a class="secondary-button" href="{{ route('instances.index') }}">Instances</a>
@@ -120,6 +153,35 @@
         </form>
     </dialog>
 
+    <dialog class="instance-dialog" id="admin-create-responsable-dialog" @if (session()->has('open_responsable_create')) data-open="true" @endif>
+        <div class="dialog-head"><div><h2>Ajouter un responsable</h2><p>Ce responsable sera disponible dans tous les formulaires.</p></div><button class="close-button" id="close-admin-create-responsable" type="button" aria-label="Fermer">×</button></div>
+        <form class="dialog-form" method="post" action="{{ route('admin.responsables.store') }}">
+            @csrf
+            <div class="form-field"><label for="admin-responsable-name">Nom du responsable *</label><input id="admin-responsable-name" name="name" value="{{ old('name') }}" required>@error('name', 'responsableCreate')<div class="field-error">{{ $message }}</div>@enderror</div>
+            <div class="dialog-actions"><button class="secondary-button" id="cancel-admin-create-responsable" type="button">Annuler</button><button class="primary-button" type="submit">Ajouter le responsable</button></div>
+        </form>
+    </dialog>
+
+    <dialog class="instance-dialog" id="admin-responsable-edit-dialog" @if (session()->has('edit_responsable_id')) data-open="true" data-record-id="{{ session('edit_responsable_id') }}" data-old-values="{{ json_encode(session()->getOldInput(), JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}" @endif>
+        <div class="dialog-head"><div><h2>Renommer un responsable</h2><p>Les fiches existantes seront mises à jour avec le nouveau nom.</p></div><button class="close-button" id="close-admin-responsable-edit" type="button" aria-label="Fermer">×</button></div>
+        <form class="dialog-form" id="admin-responsable-edit-form" method="post" action="">
+            @csrf
+            @method('PUT')
+            <div class="form-field"><label for="admin-edit-responsable-name">Nom du responsable *</label><input id="admin-edit-responsable-name" name="name" required>@error('name', 'responsableEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
+            <div class="dialog-actions"><button class="secondary-button" id="cancel-admin-responsable-edit" type="button">Annuler</button><button class="primary-button" type="submit">Enregistrer</button></div>
+        </form>
+    </dialog>
+
+    <dialog class="instance-dialog confirm-dialog" id="admin-responsable-delete-dialog">
+        <div class="dialog-head"><div><h2>Supprimer ce responsable ?</h2><p>Cette action est définitive.</p></div><button class="close-button" id="close-admin-responsable-delete" type="button" aria-label="Fermer">×</button></div>
+        <form class="dialog-form" id="admin-responsable-delete-form" method="post" action="">
+            @csrf
+            @method('DELETE')
+            <p>Confirmez la suppression du responsable <strong id="admin-responsable-delete-name"></strong>.</p>
+            <div class="dialog-actions"><button class="secondary-button" id="cancel-admin-responsable-delete" type="button">Annuler</button><button class="danger-confirm-button" type="submit">Supprimer</button></div>
+        </form>
+    </dialog>
+
     <dialog class="instance-dialog" id="admin-create-user-dialog" @if (session()->has('open_admin_create')) data-open="true" @endif>
         <div class="dialog-head"><div><h2>Ajouter un utilisateur</h2><p>Créez un accès à Gestion et suivi des activités MBS.</p></div><button class="close-button" id="close-admin-create-user" type="button" aria-label="Fermer">×</button></div>
         <form class="dialog-form" method="post" action="{{ route('admin.users.store') }}">
@@ -127,7 +189,7 @@
             <div class="form-grid">
                 <div class="form-field"><label for="admin-create-name">Nom *</label><input id="admin-create-name" name="name" value="{{ old('name') }}" required>@error('name')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="admin-create-email">Adresse e-mail *</label><input id="admin-create-email" name="email" type="email" value="{{ old('email') }}" required>@error('email')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="admin-create-password">Mot de passe * (12 caractères minimum)</label><input id="admin-create-password" name="password" type="password" autocomplete="new-password" required>@error('password')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="admin-create-password">Mot de passe * (8 caractères minimum)</label><input id="admin-create-password" name="password" type="password" minlength="8" autocomplete="new-password" required>@error('password')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="admin-create-password-confirmation">Confirmer le mot de passe *</label><input id="admin-create-password-confirmation" name="password_confirmation" type="password" autocomplete="new-password" required></div>
                 <label class="auth-remember form-field full" for="admin-create-is-admin"><input id="admin-create-is-admin" name="is_admin" type="checkbox" value="1" @checked(old('is_admin'))><span>Accorder les droits administrateur</span></label>
             </div>

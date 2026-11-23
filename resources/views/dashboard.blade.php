@@ -29,24 +29,24 @@
             </tbody></table></div>
         </section>
 
-        <section class="table-panel" aria-labelledby="recent-projects-title">
-            <div class="table-toolbar"><div><h2 class="table-title" id="recent-projects-title">Project B2B</h2><p class="table-count">Projets suivis récemment</p></div><a class="text-link" href="{{ route('projects-b2b.index') }}">Tout voir <span aria-hidden="true">→</span></a></div>
-            <div class="table-scroll"><table class="instances-table compact-table"><thead><tr><th>Projet</th><th>Client</th><th>État</th></tr></thead><tbody>
-                @forelse ($recentProjectsB2B as $project)
-                    <tr><td class="event-number">{{ $project->project }}</td><td class="client-cell">{{ $project->client }}</td><td><span class="phase-badge">{{ $project->etat }}</span></td></tr>
-                @empty
-                    <tr><td class="empty-state" colspan="3">Aucun projet B2B enregistré.</td></tr>
-                @endforelse
-            </tbody></table></div>
-        </section>
-
-        <section class="table-panel dashboard-instance-panel" aria-labelledby="recent-instances-title">
+        <section class="table-panel" aria-labelledby="recent-instances-title">
             <div class="table-toolbar"><div><h2 class="table-title" id="recent-instances-title">Instances récentes</h2><p class="table-count">Dernières instances enregistrées</p></div><a class="text-link" href="{{ route('instances.index') }}">Tout voir <span aria-hidden="true">→</span></a></div>
             <div class="table-scroll"><table class="instances-table compact-table"><thead><tr><th>Date</th><th>Instance</th><th>Client</th><th>Responsable</th><th>État</th></tr></thead><tbody>
                 @forelse ($recentInstances as $instance)
                     <tr><td class="date-cell">{{ $instance->date ? \Illuminate\Support\Carbon::parse($instance->date)->format('d/m/Y') : '—' }}</td><td class="event-number">{{ $instance->instance }}</td><td class="client-cell">{{ $instance->client }}</td><td>{{ $instance->responsable }}</td><td>{{ $instance->etat ?: '—' }}</td></tr>
                 @empty
                     <tr><td class="empty-state" colspan="5">Aucune instance enregistrée.</td></tr>
+                @endforelse
+            </tbody></table></div>
+        </section>
+
+        <section class="table-panel dashboard-wide-panel" aria-labelledby="recent-projects-title">
+            <div class="table-toolbar"><div><h2 class="table-title" id="recent-projects-title">Project B2B</h2><p class="table-count">Projets suivis récemment</p></div><a class="text-link" href="{{ route('projects-b2b.index') }}">Tout voir <span aria-hidden="true">→</span></a></div>
+            <div class="table-scroll"><table class="instances-table compact-table"><thead><tr><th>Projet</th><th>Client</th><th>État</th></tr></thead><tbody>
+                @forelse ($recentProjectsB2B as $project)
+                    <tr><td class="event-number">{{ $project->project }}</td><td class="client-cell">{{ $project->client }}</td><td><span class="phase-badge">{{ $project->etat }}</span></td></tr>
+                @empty
+                    <tr><td class="empty-state" colspan="3">Aucun projet B2B enregistré.</td></tr>
                 @endforelse
             </tbody></table></div>
         </section>

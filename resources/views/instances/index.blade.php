@@ -55,15 +55,15 @@
         <form class="dialog-form" method="post" action="{{ route('instances.store') }}">
             @csrf
             <div class="form-grid">
-                <div class="form-field"><label for="instance-date">Date *</label><input id="instance-date" name="date" type="date" value="{{ old('date') }}" required autofocus>@error('date')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="instance-date">Date *</label><input id="instance-date" name="date" type="date" value="{{ old('date', now()->toDateString()) }}" required autofocus>@error('date')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="instance-name">Instance *</label><input id="instance-name" name="instance" value="{{ old('instance') }}" required>@error('instance')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="instance-client">Client *</label><input id="instance-client" name="client" value="{{ old('client') }}" required>@error('client')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="instance-line">Ligne</label><input id="instance-line" name="ligne" value="{{ old('ligne') }}"></div>
-                <div class="form-field"><label for="instance-owner">Responsable *</label><input id="instance-owner" name="responsable" value="{{ old('responsable') }}" required>@error('responsable')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="instance-owner">Responsable *</label>@include('partials.responsable-select', ['id' => 'instance-owner', 'value' => old('responsable'), 'required' => true])@error('responsable')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="instance-state">État</label><select id="instance-state" name="etat"><option value="">Choisir un état</option>@foreach ($states as $state)<option value="{{ $state }}" @selected(old('etat') === $state)>{{ $state }}</option>@endforeach</select></div>
                 <div class="form-field"><label for="instance-deadline">Délais</label><input id="instance-deadline" name="delai" value="{{ old('delai') }}"></div>
                 <div class="form-field"><label for="instance-close-date">Date de clôture</label><input id="instance-close-date" name="date_cloture" type="date" value="{{ old('date_cloture') }}">@error('date_cloture')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field full"><label for="instance-observation">Observations</label><textarea id="instance-observation" name="observation">{{ old('observation') }}</textarea>@error('observation')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field full"><label for="instance-observation">Note</label><textarea id="instance-observation" name="observation">{{ old('observation') }}</textarea>@error('observation')<div class="field-error">{{ $message }}</div>@enderror</div>
             </div>
             <div class="dialog-actions"><button class="secondary-button" id="cancel-instance-dialog" type="button">Annuler</button><button class="primary-button" type="submit">Ajouter l’instance</button></div>
         </form>
@@ -79,11 +79,11 @@
                 <div class="form-field"><label for="edit-instance-name">Instance *</label><input id="edit-instance-name" name="instance" required>@error('instance', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-instance-client">Client *</label><input id="edit-instance-client" name="client" required>@error('client', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-instance-line">Ligne</label><input id="edit-instance-line" name="ligne"></div>
-                <div class="form-field"><label for="edit-instance-owner">Responsable *</label><input id="edit-instance-owner" name="responsable" required>@error('responsable', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="edit-instance-owner">Responsable *</label>@include('partials.responsable-select', ['id' => 'edit-instance-owner', 'required' => true])@error('responsable', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-instance-state">État</label><select id="edit-instance-state" name="etat"><option value="">Choisir un état</option>@foreach ($states as $state)<option value="{{ $state }}">{{ $state }}</option>@endforeach</select></div>
                 <div class="form-field"><label for="edit-instance-deadline">Délais</label><input id="edit-instance-deadline" name="delai"></div>
                 <div class="form-field"><label for="edit-instance-close-date">Date de clôture</label><input id="edit-instance-close-date" name="date_cloture" type="date">@error('date_cloture', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field full"><label for="edit-instance-observation">Observations</label><textarea id="edit-instance-observation" name="observation"></textarea>@error('observation', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field full"><label for="edit-instance-observation">Note</label><textarea id="edit-instance-observation" name="observation"></textarea>@error('observation', 'instanceEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
             </div>
             <div class="dialog-actions"><button class="secondary-button" id="cancel-instance-edit-dialog" type="button">Annuler</button><button class="primary-button" type="submit">Enregistrer</button></div>
         </form>
@@ -105,7 +105,7 @@
             <dl class="detail-list">
                 <div><dt>Délais</dt><dd id="instance-detail-deadline">—</dd></div>
                 <div><dt>Date clôture</dt><dd id="instance-detail-close-date">—</dd></div>
-                <div><dt>Observations</dt><dd id="instance-detail-observation">—</dd></div>
+                <div><dt>Note</dt><dd id="instance-detail-observation">—</dd></div>
             </dl>
         </div>
     </dialog>

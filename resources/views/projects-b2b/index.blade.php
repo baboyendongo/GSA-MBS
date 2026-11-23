@@ -39,11 +39,11 @@
                 <div class="form-field"><label for="project-name">Projet *</label><input id="project-name" name="project" value="{{ old('project') }}" required>@error('project')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="project-client">Client *</label><input id="project-client" name="client" value="{{ old('client') }}" required>@error('client')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="project-action">Action *</label><input id="project-action" name="Action" value="{{ old('Action') }}" required>@error('Action')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="project-owner">Responsable *</label><input id="project-owner" name="responsable" value="{{ old('responsable') }}" required>@error('responsable')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="project-owner">Responsable *</label>@include('partials.responsable-select', ['id' => 'project-owner', 'value' => old('responsable'), 'required' => true])@error('responsable')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="project-status">État *</label><select id="project-status" name="etat" required><option value="" disabled @selected(old('etat') === null)>Choisir un état</option>@foreach ($states as $state)<option value="{{ $state }}" @selected(old('etat') === $state)>{{ $state }}</option>@endforeach</select>@error('etat')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="project-deadline">Délai *</label><input id="project-deadline" name="delai" value="{{ old('date') }}" required>@error('delai')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="project-close-date">Date de clôture</label><input id="project-close-date" name="date_cloture" type="date" value="{{ old('date_cloture') }}">@error('date_cloture')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field full"><label for="project-observation">Observation</label><textarea id="project-observation" name="observation">{{ old('observation') }}</textarea>@error('observation')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field full"><label for="project-observation">Note</label><textarea id="project-observation" name="observation">{{ old('observation') }}</textarea>@error('observation')<div class="field-error">{{ $message }}</div>@enderror</div>
             </div>
             <div class="dialog-actions"><button class="secondary-button" id="cancel-project-dialog" type="button">Annuler</button><button class="primary-button" type="submit">Ajouter le projet</button></div>
         </form>
@@ -59,11 +59,11 @@
                 <div class="form-field"><label for="edit-project-name">Projet *</label><input id="edit-project-name" name="project" required>@error('project', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-project-client">Client *</label><input id="edit-project-client" name="client" required>@error('client', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-project-action">Action *</label><input id="edit-project-action" name="Action" required>@error('Action', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="edit-project-owner">Responsable *</label><input id="edit-project-owner" name="responsable" required>@error('responsable', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="edit-project-owner">Responsable *</label>@include('partials.responsable-select', ['id' => 'edit-project-owner', 'required' => true])@error('responsable', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-project-state">État *</label><select id="edit-project-state" name="etat" required><option value="" disabled>Choisir un état</option>@foreach ($states as $state)<option value="{{ $state }}">{{ $state }}</option>@endforeach</select>@error('etat', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-project-deadline">Délai *</label><input id="edit-project-deadline" name="delai" required>@error('delai', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-project-close-date">Date de clôture</label><input id="edit-project-close-date" name="date_cloture" type="date">@error('date_cloture', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field full"><label for="edit-project-observation">Observation</label><textarea id="edit-project-observation" name="observation"></textarea>@error('observation', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field full"><label for="edit-project-observation">Note</label><textarea id="edit-project-observation" name="observation"></textarea>@error('observation', 'projectEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
             </div>
             <div class="dialog-actions"><button class="secondary-button" id="cancel-project-edit-dialog" type="button">Annuler</button><button class="primary-button" type="submit">Enregistrer</button></div>
         </form>
@@ -85,7 +85,7 @@
             <dl class="detail-list">
                 <div><dt>Délai</dt><dd id="project-detail-deadline">—</dd></div>
                 <div><dt>Date de clôture</dt><dd id="project-detail-close-date">—</dd></div>
-                <div><dt>Observation</dt><dd id="project-detail-observation">—</dd></div>
+                <div><dt>Note</dt><dd id="project-detail-observation">—</dd></div>
             </dl>
         </div>
     </dialog>

@@ -16,6 +16,8 @@ Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth')->
 
 Route::middleware('auth')->group(function () {
 	Route::get('/dashboard', [SuiviProjectController::class, 'dashboard'])->name('dashboard');
+	Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+	Route::put('/password', [AuthController::class, 'updatePassword'])->name('password.update');
 
 	Route::get('/instancels', [SuiviProjectController::class, 'index'])->name('instancels.index');
 	Route::post('/instancels', [SuiviProjectController::class, 'store'])->name('instancels.store');
@@ -46,6 +48,10 @@ Route::middleware('auth')->group(function () {
 			Route::put('/states/{state}', [AdminController::class, 'updateState'])->name('states.update');
 			Route::patch('/states/{state}/active', [AdminController::class, 'toggleState'])->name('states.toggle');
 			Route::delete('/states/{state}', [AdminController::class, 'destroyState'])->name('states.destroy');
+			Route::post('/responsables', [AdminController::class, 'storeResponsable'])->name('responsables.store');
+			Route::put('/responsables/{responsable}', [AdminController::class, 'updateResponsable'])->name('responsables.update');
+			Route::patch('/responsables/{responsable}/active', [AdminController::class, 'toggleResponsable'])->name('responsables.toggle');
+			Route::delete('/responsables/{responsable}', [AdminController::class, 'destroyResponsable'])->name('responsables.destroy');
 		});
 	});
 });

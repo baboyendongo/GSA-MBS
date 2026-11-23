@@ -6,6 +6,7 @@ use App\Models\ActivityState;
 use App\Models\instance as InstanceModel;
 use App\Models\instanceLS;
 use App\Models\projectB2B;
+use App\Models\Responsable;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,6 +36,8 @@ class AdminController extends Controller
             'states' => $states,
             'stateTypes' => config('activity_states.types', []),
             'stateUsage' => $states->mapWithKeys(fn (ActivityState $state) => [$state->id => $this->stateUsageCount($state)]),
+            'responsables' => Responsable::query()->orderBy('sort_order')->orderBy('name')->paginate(10, ['*'], 'responsables_page')->withQueryString(),
+            'responsableUsage' => Responsable::query()->get()->mapWithKeys(fn (Responsable $responsable) => [$responsable->id => $this->responsableUsageCount($responsable->name)]),
         ]);
     }
 
@@ -150,12 +153,90 @@ class AdminController extends Controller
         };
     }
 
+    public function storeResponsable(Request $request): RedirectResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:100', 'unique:responsables,name'],
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('admin.index')
+                ->withErrors($validator, 'responsableCreate')
+                ->withInput()
+                ->with('open_responsable_create', true);
+        }
+
+        $name = trim($validator->validated()['name']);
+        Responsable::create([
+            'name' => $name,
+            'is_active' => true,
+            'sort_order' => Responsable::count(),
+        ]);
+
+        return redirect()->route('admin.index')->with('status', 'Le responsable a été ajouté.');
+    }
+
+    public function updateResponsable(Request $request, Responsable $responsable): RedirectResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:100', Rule::unique('responsables', 'name')->ignore($responsable->id)],
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('admin.index')
+                ->withErrors($validator, 'responsableEdit')
+                ->withInput()
+                ->with('edit_responsable_id', $responsable->id);
+        }
+
+        $newName = trim($validator->validated()['name']);
+        if ($newName !== $responsable->name) {
+            DB::transaction(function () use ($responsable, $newName): void {
+                instanceLS::where('responsable', $responsable->name)->update(['responsable' => $newName]);
+                InstanceModel::where('responsable', $responsable->name)->update(['responsable' => $newName]);
+                projectB2B::where('responsable', $responsable->name)->update(['responsable' => $newName]);
+                $responsable->update(['name' => $newName]);
+            });
+        }
+
+        return redirect()->route('admin.index')->with('status', 'Le responsable a été modifié.');
+    }
+
+    public function toggleResponsable(Responsable $responsable): RedirectResponse
+    {
+        if ($responsable->is_active && Responsable::where('is_active', true)->count() === 1) {
+            return redirect()->route('admin.index')->withErrors(['responsable' => 'Au moins un responsable doit rester actif.']);
+        }
+
+        $responsable->update(['is_active' => ! $responsable->is_active]);
+
+        return redirect()->route('admin.index')->with('status', 'La disponibilité du responsable a été mise à jour.');
+    }
+
+    public function destroyResponsable(Responsable $responsable): RedirectResponse
+    {
+        if ($this->responsableUsageCount($responsable->name) > 0) {
+            return redirect()->route('admin.index')->withErrors(['responsable' => 'Ce responsable est utilisé par des fiches et ne peut pas être supprimé.']);
+        }
+
+        $responsable->delete();
+
+        return redirect()->route('admin.index')->with('status', 'Le responsable a été supprimé.');
+    }
+
+    private function responsableUsageCount(string $name): int
+    {
+        return instanceLS::where('responsable', $name)->count()
+            + InstanceModel::where('responsable', $name)->count()
+            + projectB2B::where('responsable', $name)->count();
+    }
+
     public function storeUser(Request $request): RedirectResponse
     {
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:12', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['nullable', 'boolean'],
         ]);
 
@@ -183,7 +264,7 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:12', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['nullable', 'boolean'],
         ]);
 

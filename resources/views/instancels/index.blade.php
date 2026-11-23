@@ -10,7 +10,7 @@
             <h1>Suivi des Instancels</h1>
             <p>Retrouvez et gérez les événements de vos clients.</p>
         </div>
-        <button class="primary-button" id="open-instancel-dialog" type="button"><span aria-hidden="true">+</span> Ajouter un InstanceLS</button>
+        <button class="primary-button" id="open-instancel-dialog" type="button"><span aria-hidden="true">+</span> Ajouter une instance LS</button>
     </div>
 
     <section class="stats" aria-label="Résumé des Instancels">
@@ -44,7 +44,7 @@
                             <td><div class="row-actions"><button class="detail-button" type="button" data-instancel-detail data-instancel-title="{{ $instancel->evenement }}" data-instancel-state="{{ $instancel->phase }}" data-instancel-close-date="{{ $instancel->date_cloture ? \Illuminate\Support\Carbon::parse($instancel->date_cloture)->format('d/m/Y') : '' }}" data-instancel-observation="{{ $instancel->observation }}" title="Afficher les détails" aria-haspopup="dialog" aria-label="Voir les détails de {{ $instancel->evenement }}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg></button><button class="table-action-link" type="button" data-instancel-edit data-record-id="{{ $instancel->id }}" data-update-url="{{ route('instancels.update', $instancel->id) }}" data-date="{{ $instancel->date }}" data-evenement="{{ $instancel->evenement }}" data-clients="{{ $instancel->clients }}" data-ligne="{{ $instancel->ligne }}" data-phase="{{ $instancel->phase }}" data-responsable="{{ $instancel->responsable }}" data-delai="{{ $instancel->delai }}" data-date-cloture="{{ $instancel->date_cloture }}" data-observation="{{ $instancel->observation }}" title="Modifier" aria-label="Modifier cet Instancel"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>@if (auth()->user()->is_admin)<button class="danger-button" type="button" data-instancel-delete data-record-name="{{ $instancel->evenement }}" data-delete-url="{{ route('instancels.destroy', $instancel->id) }}" title="Supprimer" aria-label="Supprimer cet Instancel"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg></button>@endif</div></td>
                         </tr>
                     @empty
-                        <tr><td class="empty-state" colspan="8">Aucun Instancel pour le moment.</td></tr>
+                        <tr><td class="empty-state" colspan="8">Aucun Instance ls pour le moment.</td></tr>
                     @endforelse
                     <tr id="instancel-empty-search" hidden><td class="empty-state" colspan="8">Aucun résultat ne correspond à cette recherche.</td></tr>
                 </tbody>
@@ -56,21 +56,21 @@
     </section>
 
     <dialog class="instance-dialog" id="instancel-dialog" @if ($errors->getBag('default')->any()) data-open="true" @endif>
-        <div class="dialog-head"><div><h2>Ajouter un InstanceLS</h2><p>Renseignez les informations de suivi.</p></div><button class="close-button" id="close-instancel-dialog" type="button" aria-label="Fermer">×</button></div>
+        <div class="dialog-head"><div><h2>Ajouter une instance LS</h2><p>Renseignez les informations de suivi.</p></div><button class="close-button" id="close-instancel-dialog" type="button" aria-label="Fermer">×</button></div>
         <form class="dialog-form" method="post" action="{{ route('instancels.store') }}" data-archive-state-field="phase" data-close-date-field-name="date_cloture">
             @csrf
             <div class="form-grid">
-                <div class="form-field"><label for="date">Date *</label><input id="date" name="date" type="date" value="{{ old('date') }}" required autofocus>@error('date')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="evenement">Instancel *</label><input id="evenement" name="evenement" value="{{ old('evenement') }}" required>@error('evenement')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="date">Date *</label><input id="date" name="date" type="date" value="{{ old('date', now()->toDateString()) }}" required autofocus>@error('date')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="evenement">Description *</label><input id="evenement" name="evenement" value="{{ old('evenement') }}" required>@error('evenement')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="clients">Client</label><input id="clients" name="clients" value="{{ old('clients') }}"></div>
                 <div class="form-field"><label for="ligne">Ligne</label><input id="ligne" name="ligne" value="{{ old('ligne') }}"></div>
                 <div class="form-field"><label for="phase">État</label><select id="phase" name="phase" data-archive-state><option value="">Choisir un état</option>@foreach ($states as $state)<option value="{{ $state }}" @selected(old('phase') === $state)>{{ $state }}</option>@endforeach</select>@error('phase')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="responsable">Responsable</label><input id="responsable" name="responsable" value="{{ old('responsable') }}"></div>
+                <div class="form-field"><label for="responsable">Responsable</label>@include('partials.responsable-select', ['id' => 'responsable', 'value' => old('responsable')])</div>
                 <div class="form-field"><label for="delai">Délais</label><input id="delai" name="delai" type="date" value="{{ old('delai') }}"></div>
                 <div class="form-field" data-close-date-field @if (old('phase') !== 'Archivé') hidden @endif><label for="date_cloture">Date de clôture</label><input id="date_cloture" name="date_cloture" type="date" value="{{ old('date_cloture') }}" @disabled(old('phase') !== 'Archivé')>@error('date_cloture')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field full"><label for="observation">Observations</label><textarea id="observation" name="observation">{{ old('observation') }}</textarea></div>
+                <div class="form-field full"><label for="observation">Note</label><textarea id="observation" name="observation">{{ old('observation') }}</textarea></div>
             </div>
-            <div class="dialog-actions"><button class="secondary-button" id="cancel-instancel-dialog" type="button">Annuler</button><button class="primary-button" type="submit">Ajouter l’Instancel</button></div>
+            <div class="dialog-actions"><button class="secondary-button" id="cancel-instancel-dialog" type="button">Annuler</button><button class="primary-button" type="submit">Ajouter l’instance LS</button></div>
         </form>
     </dialog>
 
@@ -81,14 +81,14 @@
             @method('PUT')
             <div class="form-grid">
                 <div class="form-field"><label for="edit-instancel-date">Date *</label><input id="edit-instancel-date" name="date" type="date" required>@error('date', 'instancelEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field"><label for="edit-instancel-name">Instancel *</label><input id="edit-instancel-name" name="evenement" required>@error('evenement', 'instancelEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field"><label for="edit-instancel-name">Description *</label><input id="edit-instancel-name" name="evenement" required>@error('evenement', 'instancelEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
                 <div class="form-field"><label for="edit-instancel-client">Client</label><input id="edit-instancel-client" name="clients"></div>
                 <div class="form-field"><label for="edit-instancel-line">Ligne</label><input id="edit-instancel-line" name="ligne"></div>
                 <div class="form-field"><label for="edit-instancel-state">État</label><select id="edit-instancel-state" name="phase" data-archive-state><option value="">Choisir un état</option>@foreach ($states as $state)<option value="{{ $state }}">{{ $state }}</option>@endforeach</select></div>
-                <div class="form-field"><label for="edit-instancel-owner">Responsable</label><input id="edit-instancel-owner" name="responsable"></div>
+                <div class="form-field"><label for="edit-instancel-owner">Responsable</label>@include('partials.responsable-select', ['id' => 'edit-instancel-owner'])</div>
                 <div class="form-field"><label for="edit-instancel-deadline">Délais</label><input id="edit-instancel-deadline" name="delai" type="date"></div>
                 <div class="form-field" data-close-date-field hidden><label for="edit-instancel-close-date">Date de clôture</label><input id="edit-instancel-close-date" name="date_cloture" type="date" disabled>@error('date_cloture', 'instancelEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
-                <div class="form-field full"><label for="edit-instancel-observation">Observations</label><textarea id="edit-instancel-observation" name="observation"></textarea>@error('observation', 'instancelEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
+                <div class="form-field full"><label for="edit-instancel-observation">Note</label><textarea id="edit-instancel-observation" name="observation"></textarea>@error('observation', 'instancelEdit')<div class="field-error">{{ $message }}</div>@enderror</div>
             </div>
             <div class="dialog-actions"><button class="secondary-button" id="cancel-instancel-edit-dialog" type="button">Annuler</button><button class="primary-button" type="submit">Enregistrer</button></div>
         </form>
@@ -109,7 +109,7 @@
         <div class="detail-content">
             <dl class="detail-list">
                 <div><dt>Date clôture</dt><dd id="instancel-detail-close-date">—</dd></div>
-                <div><dt>Observations</dt><dd id="instancel-detail-observation">—</dd></div>
+                <div><dt>Note</dt><dd id="instancel-detail-observation">—</dd></div>
             </dl>
         </div>
     </dialog>

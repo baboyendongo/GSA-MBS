@@ -8,6 +8,8 @@ use App\Models\instanceLS;
 use Database\Seeders\ActivityStatesSeeder;
 use App\Models\instance as InstanceModel;
 use App\Models\projectB2B;
+use App\Models\Responsable;
+use Database\Seeders\ResponsablesSeeder;
 use Database\Seeders\UsersSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -21,6 +23,7 @@ class AdminTest extends TestCase
     {
         parent::setUp();
         $this->seed(ActivityStatesSeeder::class);
+        $this->seed(ResponsablesSeeder::class);
     }
 
     public function test_guest_is_redirected_from_administration(): void
@@ -184,6 +187,40 @@ class AdminTest extends TestCase
             'email' => 'user.mbs@example.com',
             'is_admin' => false,
         ]);
+    }
+
+    public function test_admin_can_manage_responsables_and_rename_existing_records(): void
+    {
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        $this->post(route('admin.responsables.store'), ['name' => 'Responsable test'])
+            ->assertRedirect(route('admin.index'));
+
+        $responsable = Responsable::where('name', 'Responsable test')->firstOrFail();
+
+        $instance = InstanceModel::create([
+            'date' => '2026-11-01',
+            'instance' => 'Instance test',
+            'client' => 'Client test',
+            'responsable' => 'Responsable test',
+        ]);
+
+        $this->put(route('admin.responsables.update', $responsable), ['name' => 'Responsable modifié'])
+            ->assertRedirect(route('admin.index'));
+
+        $this->assertDatabaseHas('instances', [
+            'id' => $instance->id,
+            'responsable' => 'Responsable modifié',
+        ]);
+
+        $responsable->refresh();
+        $this->assertSame('Responsable modifié', $responsable->name);
+
+        $this->delete(route('admin.responsables.destroy', $responsable))
+            ->assertRedirect(route('admin.index'))
+            ->assertSessionHasErrors('responsable');
+
+        $this->assertDatabaseHas('responsables', ['id' => $responsable->id]);
     }
 
     public function test_admin_can_add_rename_disable_and_delete_unused_states(): void

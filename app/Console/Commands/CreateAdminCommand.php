@@ -37,7 +37,7 @@ class CreateAdminCommand extends Command
         }
 
         $name = $this->ask('Nom de l’administrateur');
-        $password = $this->secret('Mot de passe (12 caractères minimum)');
+        $password =         $this->secret('Mot de passe (8 caractères minimum)');
         $confirmation = $this->secret('Confirmer le mot de passe');
 
         $validator = Validator::make([
@@ -48,7 +48,7 @@ class CreateAdminCommand extends Command
         ], [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:12', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         if ($validator->fails()) {

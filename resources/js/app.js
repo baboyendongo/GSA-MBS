@@ -41,7 +41,33 @@ setupDialog('#instancel-dialog', '#open-instancel-dialog', ['#close-instancel-di
 setupDialog('#instance-dialog', '#open-instance-dialog', ['#close-instance-dialog', '#cancel-instance-dialog']);
 setupDialog('#project-dialog', '#open-project-dialog', ['#close-project-dialog', '#cancel-project-dialog']);
 setupDialog('#admin-create-state-dialog', '#open-admin-create-state', ['#close-admin-create-state', '#cancel-admin-create-state']);
+setupDialog('#admin-create-responsable-dialog', '#open-admin-create-responsable', ['#close-admin-create-responsable', '#cancel-admin-create-responsable']);
 setupDialog('#admin-create-user-dialog', '#open-admin-create-user', ['#close-admin-create-user', '#cancel-admin-create-user']);
+setupDialog('#logout-dialog', '#open-logout-dialog', ['#close-logout-dialog', '#cancel-logout-dialog']);
+
+const profileMenuButton = document.querySelector('#profile-menu-button');
+const profileMenu = document.querySelector('#profile-menu');
+
+if (profileMenuButton && profileMenu) {
+	const closeProfileMenu = () => {
+		profileMenu.hidden = true;
+		profileMenuButton.setAttribute('aria-expanded', 'false');
+	};
+
+	profileMenuButton.addEventListener('click', () => {
+		const isOpen = profileMenuButton.getAttribute('aria-expanded') === 'true';
+		profileMenu.hidden = isOpen;
+		profileMenuButton.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+	});
+
+	document.addEventListener('click', (event) => {
+		if (!profileMenuButton.contains(event.target) && !profileMenu.contains(event.target)) closeProfileMenu();
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape') closeProfileMenu();
+	});
+}
 
 const setupRecordDialogs = (config) => {
 	const editDialog = document.querySelector(config.editDialog);
@@ -131,6 +157,19 @@ setupRecordDialogs({
 	deleteButtons: '[data-admin-state-delete]',
 	deleteCloseButtons: ['#close-admin-state-delete', '#cancel-admin-state-delete'],
 	deleteName: '#admin-state-delete-name',
+});
+
+setupRecordDialogs({
+	editDialog: '#admin-responsable-edit-dialog',
+	editForm: '#admin-responsable-edit-form',
+	editButtons: '[data-admin-responsable-edit]',
+	editCloseButtons: ['#close-admin-responsable-edit', '#cancel-admin-responsable-edit'],
+	fields: { name: 'responsableName' },
+	deleteDialog: '#admin-responsable-delete-dialog',
+	deleteForm: '#admin-responsable-delete-form',
+	deleteButtons: '[data-admin-responsable-delete]',
+	deleteCloseButtons: ['#close-admin-responsable-delete', '#cancel-admin-responsable-delete'],
+	deleteName: '#admin-responsable-delete-name',
 });
 
 setupRecordDialogs({
